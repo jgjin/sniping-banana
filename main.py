@@ -17,12 +17,9 @@ def main():
 
     sniping_banana.wait()
 
-    shot = sniping_banana.shoot()
-    if shot.ok:
-        print("Sniped!")
-    else:
-        print("Missed!")
-    print(shot.text)
+    sniped = sniping_banana.shoot()
+    if not sniped:
+        print("Missed all compatible reservations!")
 
 
 if __name__ == "__main__":

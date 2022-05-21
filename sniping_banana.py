@@ -29,16 +29,27 @@ class SnipingBanana:
             print(f"Sleeping {secs}s till {self.wait_till}")
             time.sleep(secs)
 
-    def shoot(self) -> requests.Response:
+    def shoot(self) -> bool:
         slots = self.__get_slots()
-        slot = next(filter(lambda slot: self.reqs.satisfied_by(slot), slots),
-                    None)
-        if slot is None:
+
+        sorted_compatible_slots = sorted(
+            filter(lambda slot: self.reqs.satisfied_by(slot), slots),
+            key=lambda slot: slot["date"]["start"]
+        )
+        if len(sorted_compatible_slots) == 0:
             raise Exception("Could not find satisfactory slot")
 
-        book_token = self.__get_book_token(slot)
+        for slot in sorted_compatible_slots:
+            book_token = self.__get_book_token(slot)
 
-        return self.__book(book_token)
+            response = self.__book(book_token)
+            if response.ok:
+                print(f"Sniped reservation at {slot['date']['start']}!")
+                return True
+            else:
+                print(f"Missed reservation at {slot['date']['start']}!")
+
+        return False
 
     def __init_headers(self, auth_config: dict):
         assert "api_key" in auth_config
@@ -128,4 +139,4 @@ class ReservationRequirements:
         max_size = slot["size"]["max"]
         start = datetime.fromisoformat(slot["date"]["start"])
 
-        return max_size > self.party_size and start >= self.earliest_time
+        return max_size >= self.party_size and start >= self.earliest_time
