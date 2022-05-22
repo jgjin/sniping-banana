@@ -1,6 +1,7 @@
 import json
 
 from sniping_banana import SnipingBanana
+from timing_banana import TimingBanana
 
 
 def get_config():
@@ -14,12 +15,13 @@ def main():
     config = get_config()
 
     sniping_banana = SnipingBanana(config)
+    timing_banana = TimingBanana(config, work=sniping_banana.shoot)
 
-    sniping_banana.wait()
-
-    sniped = sniping_banana.shoot()
-    if not sniped:
-        print("Missed all compatible reservations!")
+    successful = timing_banana.wait_and_run()
+    if successful:
+        print("Success!")
+    else:
+        print("Failed all attempts!")
 
 
 if __name__ == "__main__":

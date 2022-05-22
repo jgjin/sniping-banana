@@ -1,6 +1,5 @@
 from datetime import datetime
 import json
-import time
 from typing import List, Optional
 
 import requests
@@ -16,31 +15,23 @@ class SnipingBanana:
 
         self.payment_method = self.__get_default_payment_method()
         if self.payment_method is None:
-            raise Exception("Could not get default payment method")
-
-        self.wait_till = None
-        if "wait_till" in config:
-            self.wait_till = datetime.fromisoformat(config["wait_till"])
-
-    def wait(self):
-        now = datetime.now()
-        if self.wait_till is not None and self.wait_till > now:
-            secs = (self.wait_till - now).total_seconds()
-            print(f"Sleeping {secs}s till {self.wait_till}")
-            time.sleep(secs)
+            raise Exception("Could not get default payment method!")
 
     def shoot(self) -> bool:
         slots = self.__get_slots()
 
         sorted_compatible_slots = sorted(
             filter(lambda slot: self.reqs.satisfied_by(slot), slots),
-            key=lambda slot: slot["date"]["start"]
-        )
+            key=lambda slot: slot["date"]["start"])
         if len(sorted_compatible_slots) == 0:
-            raise Exception("Could not find satisfactory slot")
+            print("Could not find satisfactory slot!")
+            return False
 
         for slot in sorted_compatible_slots:
             book_token = self.__get_book_token(slot)
+            if book_token is None:
+                print(f"Could not get book token for reservation at {slot['date']['start']}!")
+                continue
 
             response = self.__book(book_token)
             if response.ok:
@@ -98,21 +89,26 @@ class SnipingBanana:
             "day": self.reqs.date,
             "party_size": self.reqs.party_size,
         }
-        response = requests.get(url, params=params,
-                                headers=self.headers).json()
+        response = requests.get(url, params=params, headers=self.headers)
 
-        return response["results"]["venues"][0]["slots"]
+        try:
+            return response.json()["results"]["venues"][0]["slots"]
+        except (requests.exceptions.JSONDecodeError, KeyError, IndexError):
+            return []
 
-    def __get_book_token(self, slot: dict) -> str:
+    def __get_book_token(self, slot: dict) -> Optional[str]:
         url = "https://api.resy.com/3/details"
         data = {
             "config_id": slot["config"]["token"],
             "day": self.reqs.date,
             "party_size": self.reqs.party_size,
         }
-        response = requests.post(url, headers=self.headers, json=data).json()
+        response = requests.post(url, headers=self.headers, json=data)
 
-        return response["book_token"]["value"]
+        try:
+            return response.json()["book_token"]["value"]
+        except (requests.exceptions.JSONDecodeError, KeyError):
+            return None
 
     def __book(self, book_token: str) -> requests.Response:
         url = "https://api.resy.com/3/book"
