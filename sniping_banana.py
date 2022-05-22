@@ -13,6 +13,7 @@ class SnipingBanana:
         assert "reqs" in config
         self.__init_reqs(config["reqs"])
 
+        self.session = requests.Session()
         self.payment_method = self.__get_default_payment_method()
         if self.payment_method is None:
             raise Exception("Could not get default payment method!")
@@ -66,7 +67,7 @@ class SnipingBanana:
 
     def __get_default_payment_method(self) -> Optional[int]:
         url = "https://api.resy.com/2/user"
-        response = requests.get(url, headers=self.headers).json()
+        response = self.session.get(url, headers=self.headers).json()
 
         if "payment_methods" not in response:
             return None
@@ -89,7 +90,7 @@ class SnipingBanana:
             "day": self.reqs.date,
             "party_size": self.reqs.party_size,
         }
-        response = requests.get(url, params=params, headers=self.headers)
+        response = self.session.get(url, params=params, headers=self.headers)
 
         try:
             return response.json()["results"]["venues"][0]["slots"]
@@ -103,7 +104,7 @@ class SnipingBanana:
             "day": self.reqs.date,
             "party_size": self.reqs.party_size,
         }
-        response = requests.post(url, headers=self.headers, json=data)
+        response = self.session.post(url, headers=self.headers, json=data)
 
         try:
             return response.json()["book_token"]["value"]
@@ -119,7 +120,7 @@ class SnipingBanana:
             }),
         }
 
-        return requests.post(url, headers=self.headers, data=data)
+        return self.session.post(url, headers=self.headers, data=data)
 
 
 class ReservationRequirements:
