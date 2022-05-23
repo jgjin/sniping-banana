@@ -29,9 +29,14 @@ class SnipingBanana:
             return False
 
         for slot in sorted_compatible_slots:
+            print(f"config id {slot['config']['token']}")
+
+        for slot in sorted_compatible_slots:
             book_token = self.__get_book_token(slot)
             if book_token is None:
-                print(f"Could not get book token for reservation at {slot['date']['start']}!")
+                print(
+                    f"Could not get book token for reservation at {slot['date']['start']}!"
+                )
                 continue
 
             response = self.__book(book_token)

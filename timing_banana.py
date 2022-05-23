@@ -19,7 +19,7 @@ class TimingBanana:
 
         next_time = datetime.now()
         for attempt in range(self.max_num_attempts):
-            print(f"---Attempt {attempt}---")
+            print(f"---Attempt {attempt} {next_time}---")
 
             successful = self.work()
             if successful:
