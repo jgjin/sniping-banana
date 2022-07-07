@@ -4,14 +4,14 @@
         "auth_token": "fill in"
     },
     "reqs": {
-        "venue_id": 1505,
+        "venue_id": 10159,
         "date": "2022-05-28",
-        "earliest_time": "19:00:00",
-        "party_size": 4
+        "earliest_time": "00:00:00",
+        "party_size": 2
     },
-    "wait_till": "2022-05-22 09:00:00",
+    "wait_till": "2022-05-26 03:16:00",
     "retry": {
-        "secs_between_attempts": 60,
-        "max_num_attempts": 60
+        "millisecs_between": 50,
+        "max_num_attempts": 6
     }
 }
