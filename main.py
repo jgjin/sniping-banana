@@ -4,6 +4,9 @@ from sniping_banana import SnipingBanana
 from timing_banana import TimingBanana
 
 
+import http.client as http_client
+
+
 def get_config():
     with open("config.json") as config_json:
         return json.load(config_json)
@@ -25,4 +28,5 @@ def main():
 
 
 if __name__ == "__main__":
+    http_client.HTTPConnection.debuglevel = 0
     main()
