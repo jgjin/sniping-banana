@@ -23,7 +23,8 @@ class SnipingBanana:
 
         sorted_compatible_slots = sorted(
             filter(lambda slot: self.reqs.satisfied_by(slot), slots),
-            key=lambda slot: slot["date"]["start"])
+            key=lambda slot: slot["date"]["start"],
+        )
         if len(sorted_compatible_slots) == 0:
             print("Could not find satisfactory slot!")
             return False
@@ -83,8 +84,11 @@ class SnipingBanana:
 
         payment_methods = response["payment_methods"]
         default_payment_method = next(
-            filter(lambda payment_method: payment_method["is_default"],
-                   payment_methods), None)
+            filter(
+                lambda payment_method: payment_method["is_default"], payment_methods
+            ),
+            None,
+        )
         if default_payment_method is not None:
             return default_payment_method["id"]
 
@@ -124,21 +128,21 @@ class SnipingBanana:
         url = "https://api.resy.com/3/book"
         data = {
             "book_token": book_token,
-            "struct_payment_method": json.dumps({
-                "id": self.payment_method,
-            }),
+            "struct_payment_method": json.dumps(
+                {
+                    "id": self.payment_method,
+                }
+            ),
         }
 
         return self.session.post(url, headers=self.headers, data=data)
 
 
 class ReservationRequirements:
-    def __init__(self, venue_id: int, date: str, earliest_time: str,
-                 party_size: int):
+    def __init__(self, venue_id: int, date: str, earliest_time: str, party_size: int):
         self.venue_id = venue_id
         self.date = date
-        self.earliest_time = datetime.fromisoformat(
-            f"{self.date} {earliest_time}")
+        self.earliest_time = datetime.fromisoformat(f"{self.date} {earliest_time}")
         self.party_size = party_size
 
     def satisfied_by(self, slot: dict) -> bool:
