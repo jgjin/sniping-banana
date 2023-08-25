@@ -55,9 +55,10 @@ class SnipingBanana:
         self.headers = {
             "Authorization": f"ResyAPI api_key=\"{auth_config['api_key']}\"",
             "X-Resy-Auth-Token": auth_config["auth_token"],
-            # Resy API returns HTTP 500 Internal Server Error when using default header "Accept": "*/*"
-            # So we override with accepting JSON
+            # Resy API returns HTTP 500 Internal Server Error when using default header values for headers "Accept" and "Accept-Encoding"
+            # So we override with header values tested as acceptable
             "Accept": "application/json",
+            "Accept-Encoding": "identity",
         }
 
     def __init_reqs(self, reqs_config: dict):
