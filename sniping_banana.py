@@ -30,9 +30,6 @@ class SnipingBanana:
             return False
 
         for slot in sorted_compatible_slots:
-            print(f"config id {slot['config']['token']}")
-
-        for slot in sorted_compatible_slots:
             book_token = self.__get_book_token(slot)
             if book_token is None:
                 print(
@@ -56,10 +53,11 @@ class SnipingBanana:
         self.headers = {
             "Authorization": f"ResyAPI api_key=\"{auth_config['api_key']}\"",
             "X-Resy-Auth-Token": auth_config["auth_token"],
-            # Resy API returns HTTP 500 Internal Server Error when using default header values for headers "Accept" and "Accept-Encoding"
+            # Resy API returns HTTP 500 Internal Server Error when using default header values for these headers
             # So we override with header values tested as acceptable
             "Accept": "application/json",
             "Accept-Encoding": "identity",
+            "Cache-Control": "no-cache",
         }
 
     def __init_reqs(self, reqs_config: dict):
@@ -131,8 +129,9 @@ class SnipingBanana:
             "struct_payment_method": json.dumps(
                 {
                     "id": self.payment_method,
-                }
+                },
             ),
+            "source_id": "resy.com-venue-details",
         }
 
         return self.session.post(url, headers=self.headers, data=data)
